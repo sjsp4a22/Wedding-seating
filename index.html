@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find Your Seat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: 'Georgia', serif; text-align: center; padding: 20px; background-color: #f9f9f9; }
+        input { padding: 10px; width: 80%; max-width: 300px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        .result-card { background: white; margin: 20px auto; padding: 20px; max-width: 400px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
+        h1 { color: #333; }
+        .table-number { font-size: 48px; color: #d4af37; font-weight: bold; margin: 10px 0; }
+        .mates-list { color: #666; font-style: italic; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to Our Wedding</h1>
+    <p>Please type your name to find your seat.</p>
+    
+    <input type="text" id="searchInput" placeholder="Type your name (e.g., Lily)..." onkeyup="searchGuest()">
+    
+    <div id="result" class="result-card">
+        <h2 id="guestName"></h2>
+        <div>You are seated at</div>
+        <div class="table-number" id="tableNumber"></div>
+        <div class="mates-list">
+            <strong>Also at your table:</strong><br>
+            <span id="tableMates"></span>
+        </div>
+    </div>
+
+    <script>
+        let guests = [];
+
+        // Fetch the Google Sheet Data
+        fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTqYpcq7uzFT7ZKBpyh09Ao5MaqktMFHLpLVNFGJUk0yhHQHXRuwi1rNtJyIFc52_zFq6jHyNe3LheE/pub?output=csv')
+            .then(response => response.text())
+            .then(data => {
+                let rows = data.split('\n');
+                rows.forEach(row => {
+                    let cols = row.split(',');
+                    if(cols.length >= 2) {
+                        guests.push({ name: cols[0].trim(), table: cols[1].trim() });
+                    }
+                });
+            });
+
+        function searchGuest() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let resultDiv = document.getElementById('result');
+            
+            if (input.length < 3) { // Only search after 3 chars
+                resultDiv.style.display = "none";
+                return;
+            }
+
+            let foundGuest = guests.find(g => g.name.toLowerCase().includes(input));
+
+            if (foundGuest) {
+                document.getElementById('guestName').innerText = foundGuest.name;
+                document.getElementById('tableNumber').innerText = "Table " + foundGuest.table;
+                
+                // Find table mates
+                let mates = guests
+                    .filter(g => g.table === foundGuest.table && g.name !== foundGuest.name)
+                    .map(g => g.name)
+                    .join(', ');
+                
+                document.getElementById('tableMates').innerText = mates || "Just you!";
+                resultDiv.style.display = "block";
+            } else {
+                resultDiv.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
