@@ -33,7 +33,7 @@
         let guests = [];
 
         // Fetch the Google Sheet Data
-        fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTqYpcq7uzFT7ZKBpyh09Ao5MaqktMFHLpLVNFGJUk0yhHQHXRuwi1rNtJyIFc52_zFq6jHyNe3LheE/pub?output=csv')
+        fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTqYpcq7uzFT7ZKBpyh09Ao5MaqktMFHLpLVNFGJUk0yhHQHXRuwi1rNtJyIFc52_zFq6jHyNe3LheE/pubhtml')
             .then(response => response.text())
             .then(data => {
                 let rows = data.split('\n');
